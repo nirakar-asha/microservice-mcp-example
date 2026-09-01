@@ -1,0 +1,53 @@
+server.port: 9999
+
+spring:
+  application.name: ai-assistant-service
+  ai:
+    openai:
+      api-key: ${OPENAI_API_KEY}
+      base-url: ${OPENAI_BASE_URL:https://api.openai.com/v1}
+      chat:
+        model: ${OPENAI_CHAT_MODEL:gpt-5.4-mini}
+        temperature: 0.7
+        max-tokens: 1500
+    mcp:
+      client:
+        enabled: true
+        name: stateless-mcp-client
+        version: 1.0.0
+        request-timeout: 30s
+        type: ASYNC
+        streamable-http:
+          connections:
+            server1:
+              url: ${STREAMABLE_HTTP_CONNECTIONS_URL:http://localhost:8072/myapp/user}
+              endpoint: /api/mcp
+
+eureka:
+  instance:
+    preferIpAddress: true
+  client:
+    registerWithEureka: true
+    fetchRegistry: true
+    serviceUrl:
+      defaultZone: http://localhost:8070/eureka/
+
+management:
+  info:
+    env:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - "*"
+  endpoint:
+    health:
+      probes:
+        enabled: true
+
+info:
+  app:
+    name: "ai-assistant-service"
+    description: "AI Assistant MCP service for processing AI requests"
+    version: "1.0"
