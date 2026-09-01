@@ -37,7 +37,7 @@ public class TransactionData {
 
     public static List<Transaction> getLastNTransactions(List<Transaction> transactions, int n) {
         return transactions.stream()
-                .sorted(Comparator.comparing(Transaction::date).reversed())
+                .sorted(Comparator.comparing((Transaction t) -> t.date()).reversed())
                 .limit(n)
                 .collect(Collectors.toList());
     }
