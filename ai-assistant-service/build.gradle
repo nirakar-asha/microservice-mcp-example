@@ -2,6 +2,7 @@ plugins {
 	id 'java'
 	id 'org.springframework.boot' version '4.0.7'
 	id 'io.spring.dependency-management' version '1.1.7'
+	id 'com.github.node-gradle.node' version '7.1.0'
 }
 
 group = 'com.nirakar.example.ms'
@@ -23,9 +24,15 @@ ext {
 	set('springCloudVersion', "2025.1.2")
 }
 
+node {
+	version = '24.18.0'
+	npmVersion = '11.16.0'
+	download = false
+	nodeProjectDir = file("${projectDir}/src/main/resources/ai-assistant-web")
+}
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-actuator'
-	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
 	implementation 'org.springframework.ai:spring-ai-starter-mcp-client-webflux'
 	implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 	implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -49,6 +56,35 @@ dependencyManagement {
 	}
 }
 
+def webDir = file("${projectDir}/src/main/resources/ai-assistant-web")
+
+tasks.register('buildWeb', com.github.gradle.node.npm.task.NpmTask) {
+	dependsOn tasks.named('npmInstall')
+	args = ['run', 'build', '--', '--base-href', '/myapp/aiassistant/']
+	inputs.dir "${webDir}/src"
+	inputs.file "${webDir}/angular.json"
+	inputs.file "${webDir}/package.json"
+	outputs.dir "${webDir}/dist"
+}
+
+tasks.register('copyWebAssets', Copy) {
+	dependsOn tasks.named('buildWeb')
+	from "${webDir}/dist/ai-assistant-web/browser"
+	into "${projectDir}/src/main/resources/static"
+}
+
+tasks.named('processResources') {
+	dependsOn tasks.named('copyWebAssets')
+	exclude('ai-assistant-web/**')
+}
+
+tasks.named('clean') {
+	delete "${projectDir}/src/main/resources/static"
+}
+
 tasks.named('test') {
 	useJUnitPlatform()
 }
+
+
+

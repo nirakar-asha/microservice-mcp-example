@@ -1,0 +1,150 @@
+<div class="d-flex vh-100 bg-light text-dark overflow-hidden">
+  <!-- Sidebar (Bootstrap Flex + Responsive display) -->
+  <aside class="d-none d-md-flex flex-column flex-shrink-0 p-4 bg-white border-end position-relative" style="width: 270px;">
+    <div class="d-flex align-items-center gap-2 mb-4 fs-5 fw-bold text-dark">
+      <span class="badge bg-teal p-2 rounded-3 text-white">✦</span>
+      MyApp Assistant
+    </div>
+    
+    <button type="button" class="btn btn-outline-success w-100 mb-4 fw-semibold text-start d-flex align-items-center justify-content-start gap-2 py-2" (click)="newConversation()">
+      <span class="fs-5 lh-1">＋</span> New conversation
+    </button>
+    
+    <div class="small fw-bold text-secondary text-uppercase mb-2 tracking-wider" style="font-size: 0.7rem;">Recent</div>
+    
+    <div class="d-flex flex-column gap-1 overflow-auto flex-grow-1">
+      @for (item of recentItems; track item) {
+        <button 
+          type="button" 
+          class="btn text-start text-truncate border-0 small py-2 px-2"
+          [ngClass]="activeRecent() === item ? 'bg-light text-dark fw-semibold' : 'text-secondary'"
+          (click)="activeRecent.set(item)">
+          {{ item }}
+        </button>
+      }
+    </div>
+
+    <div class="small text-muted mt-auto pt-3 border-top" style="font-size: 0.75rem;">
+      MyApp Assistant v1.0
+    </div>
+  </aside>
+
+  <!-- Main Content Area -->
+  <main class="d-flex flex-column flex-grow-1 min-w-0 bg-white">
+    <!-- Topbar (Bootstrap Navbar) -->
+    <header class="navbar navbar-light bg-white border-bottom px-4 py-3 flex-shrink-0">
+      <div class="d-flex align-items-center gap-2">
+        <span class="badge bg-teal p-2 rounded-3 text-white">✦</span>
+        <span class="small fw-bold text-success text-uppercase tracking-wider" style="font-size: 0.7rem;">Workspace assistant</span>
+      </div>
+      <div class="d-flex align-items-center gap-2 small text-secondary">
+        <span class="badge bg-success rounded-circle p-1" style="width: 8px; height: 8px;"></span>
+        Online &middot; GPT-4o
+      </div>
+    </header>
+
+    <!-- Conversation Scroll View -->
+    <section #chatContainer class="flex-grow-1 overflow-auto p-4 position-relative">
+      <div class="mx-auto" style="max-width: 820px; padding-bottom: 120px;">
+        <!-- Welcome View -->
+        @if (messages().length === 0 && !isLoading()) {
+          <div class="my-5">
+            <h1 class="display-5 fw-bold mb-3 text-dark">What can we<br />work through?</h1>
+            <p class="lead text-secondary mb-4" style="max-width: 480px;">
+              Ask about your data, or transactions. I can connect the dots and help you move from question to answer.
+            </p>
+
+            <div class="row g-2">
+              @for (suggestion of suggestions; track suggestion) {
+                <div class="col-12 col-md-6">
+                  <button 
+                    type="button" 
+                    class="btn btn-outline-secondary w-100 text-start p-3 rounded-3 small text-dark bg-light border-light-subtle shadow-sm" 
+                    (click)="selectSuggestion(suggestion)">
+                    {{ suggestion }}
+                  </button>
+                </div>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Messages List (Simple Text without Card or Background) -->
+        @for (msg of messages(); track msg.id) {
+          <article 
+            class="d-flex gap-3 my-4" 
+            [ngClass]="msg.role === 'user' ? 'flex-row-reverse' : 'align-items-start'">
+            
+            @if (msg.role === 'assistant') {
+              <div class="badge bg-teal rounded-3 d-flex align-items-center justify-content-center text-white fw-bold" style="width: 32px; height: 32px; flex-shrink: 0;">
+                AI
+              </div>
+            }
+
+            <div class="flex-grow-1 min-w-0" [ngClass]="{'text-end': msg.role === 'user'}">
+              @if (msg.role === 'assistant') {
+                <div class="small fw-bold text-secondary text-uppercase mb-1 tracking-wider" style="font-size: 0.68rem;">Assistant</div>
+                <!-- Markdown rendered simple text -->
+                <div class="message-text" [innerHTML]="msg.content | markdown"></div>
+              } @else {
+                <!-- User message simple text -->
+                <div class="fs-6 text-dark py-1">{{ msg.content }}</div>
+              }
+            </div>
+          </article>
+        }
+
+        <!-- Loading State -->
+        @if (isLoading()) {
+          <article class="d-flex gap-3 my-4 align-items-start">
+            <div class="badge bg-teal rounded-3 d-flex align-items-center justify-content-center text-white fw-bold" style="width: 32px; height: 32px; flex-shrink: 0;">
+              AI
+            </div>
+            <div>
+              <div class="small fw-bold text-secondary text-uppercase mb-1 tracking-wider" style="font-size: 0.68rem;">Assistant</div>
+              <div class="d-flex align-items-center gap-2 text-muted small fw-semibold py-1">
+                <div class="spinner-border spinner-border-sm text-success" role="status">
+                  <span class="visually-hidden">Loading...</span>
+                </div>
+                Loading...
+              </div>
+            </div>
+          </article>
+        }
+      </div>
+    </section>
+
+    <!-- Fixed Composer Input Area -->
+    <div class="border-top bg-white p-3 shadow-lg" style="margin-top: auto;">
+      <form class="mx-auto" style="max-width: 820px;" (submit)="$event.preventDefault(); sendMessage()">
+        <div class="input-group border rounded-3 p-2 bg-white shadow-sm align-items-end">
+          <textarea
+            #messageInput
+            rows="1"
+            class="form-control border-0 shadow-none bg-transparent"
+            placeholder="Message MyApp Assistant..."
+            aria-label="Message MyApp Assistant"
+            [value]="userInput()"
+            (input)="onInput($event)"
+            (keydown)="onKeyDown($event)"
+            [disabled]="isLoading()"
+            style="resize: none; max-height: 130px;"></textarea>
+          
+          <button
+            type="submit"
+            class="btn btn-success rounded-3 px-3 py-2 ms-2 d-flex align-items-center justify-content-center"
+            [disabled]="!userInput().trim() || isLoading()">
+            @if (isLoading()) {
+              <span class="spinner-border spinner-border-sm" role="status"></span>
+            } @else {
+              ↑
+            }
+          </button>
+        </div>
+        <div class="text-center text-muted small mt-2" style="font-size: 0.75rem;">
+          AI can make mistakes. Check important information.
+        </div>
+      </form>
+    </div>
+  </main>
+</div>

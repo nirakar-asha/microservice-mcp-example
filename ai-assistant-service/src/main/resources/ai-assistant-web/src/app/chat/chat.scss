@@ -1,0 +1,97 @@
+/* Bootstrap Custom Theme Enhancements */
+.bg-teal {
+  background-color: #216e63 !important;
+}
+
+.text-success {
+  color: #216e63 !important;
+}
+
+.btn-outline-success {
+  color: #216e63 !important;
+  border-color: #cbd7d3 !important;
+  &:hover {
+    background-color: #e5f3ee !important;
+    color: #216e63 !important;
+    border-color: #216e63 !important;
+  }
+}
+
+.btn-success {
+  background-color: #216e63 !important;
+  border-color: #216e63 !important;
+  &:hover {
+    background-color: #19584f !important;
+    border-color: #19584f !important;
+  }
+}
+
+.tracking-wider {
+  letter-spacing: 0.1em;
+}
+
+/* Markdown Text Rendering Styles */
+.message-text {
+  white-space: normal;
+  overflow-wrap: anywhere;
+  font-size: 0.98rem;
+  line-height: 1.65;
+}
+
+::ng-deep .message-text p,
+::ng-deep .message-text ul,
+::ng-deep .message-text ol,
+::ng-deep .message-text pre,
+::ng-deep .message-text blockquote,
+::ng-deep .message-text table {
+  margin-bottom: 0.9rem;
+}
+
+::ng-deep .message-text > :last-child {
+  margin-bottom: 0;
+}
+
+::ng-deep .message-text ul,
+::ng-deep .message-text ol {
+  padding-left: 1.2rem;
+}
+
+::ng-deep .message-text code {
+  padding: 0.1rem 0.35rem;
+  border-radius: 5px;
+  background: #eef3f8;
+  font-family: "SFMono-Regular", Consolas, monospace;
+  font-size: 0.9em;
+}
+
+::ng-deep .message-text pre {
+  overflow-x: auto;
+  padding: 0.9rem 1rem;
+  border-radius: 10px;
+  background: #0f172a;
+  color: #e2e8f0;
+}
+
+::ng-deep .message-text pre code {
+  padding: 0;
+  background: transparent;
+  color: inherit;
+}
+
+::ng-deep .message-text blockquote {
+  padding-left: 0.9rem;
+  border-left: 3px solid #c9d5de;
+  color: #52606d;
+}
+
+::ng-deep .message-text table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+::ng-deep .message-text th,
+::ng-deep .message-text td {
+  padding: 0.45rem 0.6rem;
+  border: 1px solid #dfe7ee;
+  text-align: left;
+}
